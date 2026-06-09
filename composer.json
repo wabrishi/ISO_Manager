@@ -1,0 +1,15 @@
+{
+    "name": "jules/iso-manager",
+    "description": "ISO Certificate Manager",
+    "type": "project",
+    "require": {
+        "dompdf/dompdf": "^2.0",
+        "chillerlan/php-qrcode": "^4.3"
+    },
+    "authors": [
+        {
+            "name": "Jules",
+            "email": "jules@example.com"
+        }
+    ]
+}
