@@ -50,83 +50,83 @@ $cert->qr_code = $qr_filename;
 
 // Generate PDF
 // Prepare template background
-$template_path = realpath(__DIR__ . '/../assets/images/certificate_template.jpg');
+$template_path = realpath(__DIR__ . '/../assets/images/new_template.png');
 $template_data = base64_encode(file_get_contents($template_path));
-$template_src = 'data:image/jpeg;base64,' . $template_data;
+$template_src = 'data:image/png;base64,' . $template_data;
 
 $html = '
 <!DOCTYPE html>
 <html>
 <head>
     <style>
-        @page { margin: 0px; }
-        body { font-family: "Helvetica", sans-serif; text-align: center; color: #333; margin: 0; padding: 0; }
-        .cert-container {
-            position: relative;
+        @page { margin: 0px; size: A4 portrait; }
+        body { margin: 0; padding: 0; font-family: "Helvetica", "Arial", sans-serif; width: 100%; height: 100%; }
+
+        .certificate-container {
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
             height: 100%;
             background-image: url("' . $template_src . '");
             background-size: cover;
             background-position: center;
             background-repeat: no-repeat;
+            z-index: -1;
         }
 
-        .content-overlay {
+        .content {
             position: absolute;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            padding-top: 150px;
-            box-sizing: border-box;
+            z-index: 1;
         }
 
-        .cert-number { font-size: 12px; position: absolute; top: 660px; left: 240px; }
-        .issue-date { font-size: 12px; position: absolute; top: 700px; left: 240px; }
-        .expiry-date { font-size: 12px; position: absolute; top: 720px; left: 240px; }
+        .cert-number { position: absolute; top: 160px; left: 550px; font-size: 16px; font-weight: bold; }
+        .company-name { position: absolute; top: 310px; left: 0; width: 100%; text-align: center; font-size: 34px; font-weight: bold; color: #1a365d; }
+        .company-address { position: absolute; top: 370px; left: 0; width: 100%; text-align: center; font-size: 14px; }
+        .certification-text { position: absolute; top: 430px; left: 0; width: 100%; text-align: center; font-size: 18px; font-style: italic; }
+        .standard { position: absolute; top: 480px; left: 0; width: 100%; text-align: center; font-size: 26px; font-weight: bold; color: #b7791f; }
+        .scope { position: absolute; top: 530px; left: 100px; width: 590px; text-align: center; font-size: 14px; line-height: 1.5; }
 
-        .company-name { font-size: 24px; font-weight: bold; margin-top: 50px; }
-        .address { font-size: 14px; margin-top: 10px; padding: 0 100px; line-height: 1.5; }
+        .issue-date { position: absolute; top: 780px; left: 120px; font-size: 14px; font-weight: bold; }
+        .expiry-date { position: absolute; top: 810px; left: 120px; font-size: 14px; font-weight: bold; }
 
-        .standard-section { margin-top: 100px; }
-        .standard { font-size: 36px; font-weight: bold; color: #1a5276; margin: 5px 0; }
-        .main-type { font-size: 16px; font-weight: bold; color: #333; margin-top: 5px; }
+        .qr-code { position: absolute; top: 760px; left: 600px; width: 100px; height: 100px; }
+        .type-logo { position: absolute; top: 760px; left: 350px; width: 100px; height: 100px; }
 
-        .scope { font-size: 14px; margin-top: 30px; padding: 0 150px; font-weight: bold; }
-
-        .qr-code { position: absolute; top: 50px; left: 50px; width: 80px; height: 80px; }
-        .type-logo { position: absolute; top: 50px; right: 50px; width: 120px; height: auto; }
-        .status-url { font-size: 10px; position: absolute; top: 750px; left: 80px; font-weight: bold; }
+        .type-logo-text { padding: 10px; border: 2px solid #1a5276; border-radius: 50%; color: #1a5276; font-weight: bold; font-size: 20px; width: 80px; height: 80px; line-height: 80px; text-align: center; }
     </style>
 </head>
 <body>
-    <div class="cert-container">
-        <div class="content-overlay">
-            <img src="' . $qr_image . '" class="qr-code">
+    <div class="certificate-container"></div>
+    <div class="content">
+        <div class="cert-number">No: ' . htmlspecialchars($cert->certificate_number) . '</div>
 
-            <div class="type-logo">
-                <div style="padding: 10px; border: 2px solid #1a5276; border-radius: 50%; color: #1a5276; font-weight: bold; font-size: 20px; width: 80px; height: 80px; line-height: 80px; text-align: center;">
-                    ' . htmlspecialchars($cert->main_type) . '
-                </div>
+        <div class="company-name">' . htmlspecialchars($cert->company_name) . '</div>
+
+        <div class="company-address">' . nl2br(htmlspecialchars($cert->address)) . '</div>
+
+        <div class="certification-text">has been assessed and found to conform to the requirements of</div>
+
+        <div class="standard">' . htmlspecialchars(explode("—", $cert->iso_standard)[0]) . '</div>
+
+        <div class="scope">
+            <strong>For the following scope:</strong><br>
+            ' . nl2br(htmlspecialchars($cert->scope)) . '
+        </div>
+
+        <div class="issue-date">Issue Date: ' . date("d F Y", strtotime($cert->issue_date)) . '</div>
+        <div class="expiry-date">Valid Until: ' . date("d F Y", strtotime($cert->expiry_date)) . '</div>
+
+        <img src="' . $qr_image . '" class="qr-code">
+
+        <div class="type-logo">
+            <div class="type-logo-text">
+                ' . htmlspecialchars($cert->main_type) . '
             </div>
-
-            <div class="company-name">' . htmlspecialchars($cert->company_name) . '</div>
-            <div class="address">' . nl2br(htmlspecialchars($cert->address)) . '</div>
-
-            <div class="standard-section">
-                <div class="standard">' . htmlspecialchars(explode("—", $cert->iso_standard)[0]) . '</div>
-                <div class="main-type">Type: ' . htmlspecialchars($cert->main_type) . '</div>
-            </div>
-
-            <div class="scope">
-                ( ' . nl2br(htmlspecialchars($cert->scope)) . ' )
-            </div>
-
-            <div class="cert-number">: ' . htmlspecialchars($cert->certificate_number) . '</div>
-            <div class="issue-date">: ' . date("d - m - Y", strtotime($cert->issue_date)) . '</div>
-            <div class="expiry-date">: ' . date("d - m - Y", strtotime($cert->expiry_date)) . '</div>
-
-            <div class="status-url">"http://' . $_SERVER['HTTP_HOST'] . '/verify.php"</div>
         </div>
     </div>
 </body>
