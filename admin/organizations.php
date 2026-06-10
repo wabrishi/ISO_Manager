@@ -1,5 +1,5 @@
 <?php
-require_once 'header.php';
+session_start();
 require_once '../config/database.php';
 require_once '../models/Organization.php';
 
@@ -10,6 +10,10 @@ $org = new Organization($db);
 $action = $_GET['action'] ?? 'list';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    if(!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        die("CSRF Token Validation Failed.");
+    }
+
     if (isset($_POST['delete_organization'])) {
         $org->id = $_POST['id'];
         if ($org->delete()) {
@@ -38,6 +42,8 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
     exit();
 }
 
+require_once 'header.php';
+
 if ($action == 'edit' || $action == 'add') {
     if ($action == 'edit' && isset($_GET['id'])) {
         $org->id = $_GET['id'];
@@ -51,6 +57,7 @@ if ($action == 'edit' || $action == 'add') {
         </div>
         <div class="card-body">
             <form method="POST" action="organizations.php">
+                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                 <?php if($action == 'edit'): ?>
                     <input type="hidden" name="id" value="<?= htmlspecialchars($org->id) ?>">
                 <?php endif; ?>
@@ -134,6 +141,7 @@ if ($action == 'edit' || $action == 'add') {
                         <td>
                             <a href="organizations.php?action=edit&id=<?= $row['id'] ?>" class="btn btn-sm btn-info text-white"><i class="fas fa-edit"></i></a>
                             <form method="POST" action="organizations.php" class="d-inline" onsubmit="return confirm('Are you sure you want to delete this organization?');">
+                                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                                 <input type="hidden" name="id" value="<?= $row['id'] ?>">
                                 <input type="hidden" name="delete_organization" value="1">
                                 <button type="submit" class="btn btn-sm btn-danger"><i class="fas fa-trash"></i></button>
