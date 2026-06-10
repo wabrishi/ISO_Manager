@@ -7,6 +7,7 @@ class Certificate {
     public $certificate_number;
     public $organization_id;
     public $iso_standard;
+    public $main_type;
     public $scope;
     public $issue_date;
     public $expiry_date;
@@ -21,7 +22,7 @@ class Certificate {
 
     public function create() {
         $query = "INSERT INTO " . $this->table_name . "
-                SET certificate_number=:certificate_number, organization_id=:organization_id, iso_standard=:iso_standard,
+                SET certificate_number=:certificate_number, organization_id=:organization_id, iso_standard=:iso_standard, main_type=:main_type,
                     scope=:scope, issue_date=:issue_date, expiry_date=:expiry_date, qr_code=:qr_code, pdf_file=:pdf_file, status=:status";
 
         $stmt = $this->conn->prepare($query);
@@ -29,6 +30,7 @@ class Certificate {
         $this->certificate_number=htmlspecialchars(strip_tags($this->certificate_number));
         $this->organization_id=htmlspecialchars(strip_tags($this->organization_id));
         $this->iso_standard=htmlspecialchars(strip_tags($this->iso_standard));
+        $this->main_type=htmlspecialchars(strip_tags($this->main_type));
         $this->scope=htmlspecialchars(strip_tags($this->scope));
         $this->issue_date=htmlspecialchars(strip_tags($this->issue_date));
         $this->expiry_date=htmlspecialchars(strip_tags($this->expiry_date));
@@ -43,6 +45,7 @@ class Certificate {
         $stmt->bindParam(":certificate_number", $this->certificate_number);
         $stmt->bindParam(":organization_id", $this->organization_id);
         $stmt->bindParam(":iso_standard", $this->iso_standard);
+        $stmt->bindParam(":main_type", $this->main_type);
         $stmt->bindParam(":scope", $this->scope);
         $stmt->bindParam(":issue_date", $this->issue_date);
         $stmt->bindParam(":expiry_date", $this->expiry_date);
@@ -85,6 +88,7 @@ class Certificate {
             $this->company_name = $row['company_name'];
             $this->address = $row['address'];
             $this->iso_standard = $row['iso_standard'];
+            $this->main_type = $row['main_type'];
             $this->scope = $row['scope'];
             $this->issue_date = $row['issue_date'];
             $this->expiry_date = $row['expiry_date'];
@@ -111,7 +115,7 @@ class Certificate {
 
     public function update() {
         $query = "UPDATE " . $this->table_name . "
-                SET organization_id=:organization_id, iso_standard=:iso_standard, scope=:scope,
+                SET organization_id=:organization_id, iso_standard=:iso_standard, main_type=:main_type, scope=:scope,
                     issue_date=:issue_date, expiry_date=:expiry_date, status=:status
                 WHERE id=:id";
 
@@ -119,6 +123,7 @@ class Certificate {
 
         $this->organization_id=htmlspecialchars(strip_tags($this->organization_id));
         $this->iso_standard=htmlspecialchars(strip_tags($this->iso_standard));
+        $this->main_type=htmlspecialchars(strip_tags($this->main_type));
         $this->scope=htmlspecialchars(strip_tags($this->scope));
         $this->issue_date=htmlspecialchars(strip_tags($this->issue_date));
         $this->expiry_date=htmlspecialchars(strip_tags($this->expiry_date));
@@ -127,6 +132,7 @@ class Certificate {
 
         $stmt->bindParam(":organization_id", $this->organization_id);
         $stmt->bindParam(":iso_standard", $this->iso_standard);
+        $stmt->bindParam(":main_type", $this->main_type);
         $stmt->bindParam(":scope", $this->scope);
         $stmt->bindParam(":issue_date", $this->issue_date);
         $stmt->bindParam(":expiry_date", $this->expiry_date);

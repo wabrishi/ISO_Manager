@@ -49,67 +49,77 @@ file_put_contents($qr_filepath, base64_decode($qr_data));
 $cert->qr_code = $qr_filename;
 
 // Generate PDF
+// Prepare template background
+$template_path = realpath(__DIR__ . '/../assets/images/certificate_template.jpg');
+$template_data = base64_encode(file_get_contents($template_path));
+$template_src = 'data:image/jpeg;base64,' . $template_data;
+
 $html = '
 <!DOCTYPE html>
 <html>
 <head>
     <style>
-        body { font-family: "Helvetica", sans-serif; text-align: center; color: #333; margin: 0; padding: 20px; }
-        .cert-container { border: 10px solid #1a365d; padding: 40px; position: relative; height: 900px; }
-        .title { font-size: 48px; font-weight: bold; color: #1a365d; margin-bottom: 10px; text-transform: uppercase; }
-        .subtitle { font-size: 24px; color: #666; margin-bottom: 40px; }
-        .presented-to { font-size: 20px; margin-bottom: 10px; }
-        .company-name { font-size: 36px; font-weight: bold; color: #2c5282; margin-bottom: 20px; border-bottom: 2px solid #ccc; display: inline-block; padding-bottom: 5px; }
-        .details { font-size: 18px; margin-bottom: 30px; line-height: 1.6; }
-        .standard { font-size: 28px; font-weight: bold; color: #2b6cb0; margin: 20px 0; }
-        .footer { position: absolute; bottom: 50px; width: 100%; left: 0; }
-        .footer-table { width: 100%; padding: 0 50px; }
-        .footer-td { width: 33%; text-align: center; vertical-align: bottom; }
-        .signature-line { border-top: 1px solid #333; margin-top: 10px; padding-top: 5px; font-weight: bold; }
-        .qr-code { width: 120px; height: 120px; }
-        .cert-number { font-size: 14px; color: #888; position: absolute; top: 20px; right: 30px; }
+        @page { margin: 0px; }
+        body { font-family: "Helvetica", sans-serif; text-align: center; color: #333; margin: 0; padding: 0; }
+        .cert-container {
+            position: relative;
+            width: 100%;
+            height: 100%;
+            background-image: url("' . $template_src . '");
+            background-size: cover;
+            background-position: center;
+            background-repeat: no-repeat;
+        }
+
+        .content-overlay {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            padding-top: 150px;
+            box-sizing: border-box;
+        }
+
+        .cert-number { font-size: 12px; position: absolute; top: 660px; left: 240px; }
+        .issue-date { font-size: 12px; position: absolute; top: 700px; left: 240px; }
+        .expiry-date { font-size: 12px; position: absolute; top: 720px; left: 240px; }
+
+        .company-name { font-size: 24px; font-weight: bold; margin-top: 50px; }
+        .address { font-size: 14px; margin-top: 10px; padding: 0 100px; line-height: 1.5; }
+
+        .standard-section { margin-top: 100px; }
+        .standard { font-size: 36px; font-weight: bold; color: #1a5276; margin: 5px 0; }
+        .main-type { font-size: 16px; font-weight: bold; color: #333; margin-top: 5px; }
+
+        .scope { font-size: 14px; margin-top: 30px; padding: 0 150px; font-weight: bold; }
+
+        .qr-code { position: absolute; top: 50px; left: 50px; width: 80px; height: 80px; }
+        .status-url { font-size: 10px; position: absolute; top: 750px; left: 80px; font-weight: bold; }
     </style>
 </head>
 <body>
     <div class="cert-container">
-        <div class="cert-number">Certificate No: ' . htmlspecialchars($cert->certificate_number) . '</div>
+        <div class="content-overlay">
+            <img src="' . $qr_image . '" class="qr-code">
 
-        <div class="title">Certificate of Registration</div>
-        <div class="subtitle">This is to certify that the Management System of</div>
+            <div class="company-name">' . htmlspecialchars($cert->company_name) . '</div>
+            <div class="address">' . nl2br(htmlspecialchars($cert->address)) . '</div>
 
-        <div class="company-name">' . htmlspecialchars($cert->company_name) . '</div>
-        <div class="details">
-            ' . nl2br(htmlspecialchars($cert->address)) . '
-        </div>
+            <div class="standard-section">
+                <div class="standard">' . htmlspecialchars(explode("—", $cert->iso_standard)[0]) . '</div>
+                <div class="main-type">Type: ' . htmlspecialchars($cert->main_type) . '</div>
+            </div>
 
-        <div class="presented-to">has been assessed and found to conform to the requirements of</div>
+            <div class="scope">
+                ( ' . nl2br(htmlspecialchars($cert->scope)) . ' )
+            </div>
 
-        <div class="standard">' . htmlspecialchars($cert->iso_standard) . '</div>
+            <div class="cert-number">: ' . htmlspecialchars($cert->certificate_number) . '</div>
+            <div class="issue-date">: ' . date("d - m - Y", strtotime($cert->issue_date)) . '</div>
+            <div class="expiry-date">: ' . date("d - m - Y", strtotime($cert->expiry_date)) . '</div>
 
-        <div class="details">
-            <strong>For the following scope:</strong><br>
-            ' . nl2br(htmlspecialchars($cert->scope)) . '
-        </div>
-
-        <div class="footer">
-            <table class="footer-table">
-                <tr>
-                    <td class="footer-td">
-                        <div style="margin-bottom:10px;">
-                            <strong>Issue Date:</strong> ' . date("F d, Y", strtotime($cert->issue_date)) . '<br>
-                            <strong>Expiry Date:</strong> ' . date("F d, Y", strtotime($cert->expiry_date)) . '
-                        </div>
-                    </td>
-                    <td class="footer-td">
-                        <img src="' . $qr_image . '" class="qr-code">
-                        <div style="font-size: 12px; margin-top: 5px;">Scan to Verify</div>
-                    </td>
-                    <td class="footer-td">
-                        <div style="height: 60px;"></div>
-                        <div class="signature-line">Authorized Signature</div>
-                    </td>
-                </tr>
-            </table>
+            <div class="status-url">"http://' . $_SERVER['HTTP_HOST'] . '/verify.php"</div>
         </div>
     </div>
 </body>
