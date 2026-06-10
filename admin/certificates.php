@@ -25,6 +25,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
         }
     } else {
         $cert->organization_id = $_POST['organization_id'];
+        $cert->main_type = $_POST['main_type'];
         $cert->iso_standard = $_POST['iso_standard'];
         $cert->scope = $_POST['scope'];
         $cert->issue_date = $_POST['issue_date'];
@@ -71,7 +72,7 @@ if ($action == 'edit' || $action == 'add') {
                 <?php endif; ?>
 
                 <div class="row mb-3">
-                    <div class="col-md-6">
+                    <div class="col-md-4">
                         <label class="form-label">Organization *</label>
                         <select name="organization_id" class="form-select" required>
                             <option value="">Select Organization</option>
@@ -82,9 +83,43 @@ if ($action == 'edit' || $action == 'add') {
                             <?php endwhile; ?>
                         </select>
                     </div>
-                    <div class="col-md-6">
+                    <div class="col-md-4">
+                        <label class="form-label">Main Type *</label>
+                        <select name="main_type" class="form-select" required>
+                            <option value="IAF" <?= (isset($cert->main_type) && $cert->main_type == 'IAF') ? 'selected' : '' ?>>IAF</option>
+                            <option value="Non-IAF" <?= (isset($cert->main_type) && $cert->main_type == 'Non-IAF') ? 'selected' : '' ?>>Non-IAF</option>
+                        </select>
+                    </div>
+                    <div class="col-md-4">
                         <label class="form-label">ISO Standard *</label>
-                        <input type="text" name="iso_standard" class="form-control" placeholder="e.g., ISO 9001:2015" value="<?= htmlspecialchars($cert->iso_standard ?? '') ?>" required>
+                        <select name="iso_standard" class="form-select" required>
+                            <option value="">Select Standard</option>
+                            <optgroup label="General & Quality Management">
+                                <option value="ISO 9001:2015" <?= (isset($cert->iso_standard) && $cert->iso_standard == 'ISO 9001:2015') ? 'selected' : '' ?>>ISO 9001:2015 — Quality Management Systems (QMS)</option>
+                                <option value="ISO 10002:2018" <?= (isset($cert->iso_standard) && $cert->iso_standard == 'ISO 10002:2018') ? 'selected' : '' ?>>ISO 10002:2018 — Customer Satisfaction and Complaint Handling</option>
+                            </optgroup>
+                            <optgroup label="IT, Security & Technology">
+                                <option value="ISO/IEC 27001:2022" <?= (isset($cert->iso_standard) && $cert->iso_standard == 'ISO/IEC 27001:2022') ? 'selected' : '' ?>>ISO/IEC 27001:2022 — Information Security Management Systems (ISMS)</option>
+                                <option value="ISO/IEC 27017" <?= (isset($cert->iso_standard) && $cert->iso_standard == 'ISO/IEC 27017') ? 'selected' : '' ?>>ISO/IEC 27017 — Cloud Security Controls</option>
+                                <option value="ISO/IEC 27018" <?= (isset($cert->iso_standard) && $cert->iso_standard == 'ISO/IEC 27018') ? 'selected' : '' ?>>ISO/IEC 27018 — Cloud Privacy Protection</option>
+                                <option value="ISO/IEC 20000-1:2018" <?= (isset($cert->iso_standard) && $cert->iso_standard == 'ISO/IEC 20000-1:2018') ? 'selected' : '' ?>>ISO/IEC 20000-1:2018 — IT Service Management (ITSM)</option>
+                                <option value="ISO/IEC 42001:2023" <?= (isset($cert->iso_standard) && $cert->iso_standard == 'ISO/IEC 42001:2023') ? 'selected' : '' ?>>ISO/IEC 42001:2023 — Artificial Intelligence Management Systems (AIMS)</option>
+                            </optgroup>
+                            <optgroup label="Operations & Risk Management">
+                                <option value="ISO 14001:2015/2026" <?= (isset($cert->iso_standard) && $cert->iso_standard == 'ISO 14001:2015/2026') ? 'selected' : '' ?>>ISO 14001:2015/2026 — Environmental Management Systems (EMS)</option>
+                                <option value="ISO 45001:2018" <?= (isset($cert->iso_standard) && $cert->iso_standard == 'ISO 45001:2018') ? 'selected' : '' ?>>ISO 45001:2018 — Occupational Health and Safety Management Systems (OH&S)</option>
+                                <option value="ISO 22301:2019" <?= (isset($cert->iso_standard) && $cert->iso_standard == 'ISO 22301:2019') ? 'selected' : '' ?>>ISO 22301:2019 — Business Continuity Management Systems (BCMS)</option>
+                                <option value="ISO 37001:2025" <?= (isset($cert->iso_standard) && $cert->iso_standard == 'ISO 37001:2025') ? 'selected' : '' ?>>ISO 37001:2025 — Anti-Bribery Management Systems (ABMS)</option>
+                                <option value="ISO 50001:2018" <?= (isset($cert->iso_standard) && $cert->iso_standard == 'ISO 50001:2018') ? 'selected' : '' ?>>ISO 50001:2018 — Energy Management Systems (EnMS)</option>
+                            </optgroup>
+                            <optgroup label="Specialized Industry Standards">
+                                <option value="ISO 22000:2018" <?= (isset($cert->iso_standard) && $cert->iso_standard == 'ISO 22000:2018') ? 'selected' : '' ?>>ISO 22000:2018 — Food Safety Management Systems (FSMS)</option>
+                                <option value="FSSC 22000" <?= (isset($cert->iso_standard) && $cert->iso_standard == 'FSSC 22000') ? 'selected' : '' ?>>FSSC 22000 — Food Safety System Certification (often used with ISO 22000)</option>
+                                <option value="ISO 13485:2016" <?= (isset($cert->iso_standard) && $cert->iso_standard == 'ISO 13485:2016') ? 'selected' : '' ?>>ISO 13485:2016 — Quality Management Systems for Medical Devices</option>
+                                <option value="ISO 21001:2018/2025" <?= (isset($cert->iso_standard) && $cert->iso_standard == 'ISO 21001:2018/2025') ? 'selected' : '' ?>>ISO 21001:2018/2025 — Educational Organizations Management Systems (EOMS)</option>
+                                <option value="ISO 37101:2016" <?= (isset($cert->iso_standard) && $cert->iso_standard == 'ISO 37101:2016') ? 'selected' : '' ?>>ISO 37101:2016 — Sustainable Development for Communities and Cities</option>
+                            </optgroup>
+                        </select>
                     </div>
                 </div>
 

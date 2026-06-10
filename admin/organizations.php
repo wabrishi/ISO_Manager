@@ -29,11 +29,9 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $_SESSION['message'] = "Organization updated successfully.";
             }
         } else {
-        header("Location: organizations.php");
-    exit();
-}
-        if ($org->create()) {
-            $_SESSION['message'] = "Organization created successfully.";
+            if ($org->create()) {
+                $_SESSION['message'] = "Organization created successfully.";
+            }
         }
     }
     header("Location: organizations.php");
