@@ -95,6 +95,7 @@ $html = '
         .scope { font-size: 14px; margin-top: 30px; padding: 0 150px; font-weight: bold; }
 
         .qr-code { position: absolute; top: 50px; left: 50px; width: 80px; height: 80px; }
+        .type-logo { position: absolute; top: 50px; right: 50px; width: 120px; height: auto; }
         .status-url { font-size: 10px; position: absolute; top: 750px; left: 80px; font-weight: bold; }
     </style>
 </head>
@@ -102,6 +103,12 @@ $html = '
     <div class="cert-container">
         <div class="content-overlay">
             <img src="' . $qr_image . '" class="qr-code">
+
+            <div class="type-logo">
+                <div style="padding: 10px; border: 2px solid #1a5276; border-radius: 50%; color: #1a5276; font-weight: bold; font-size: 20px; width: 80px; height: 80px; line-height: 80px; text-align: center;">
+                    ' . htmlspecialchars($cert->main_type) . '
+                </div>
+            </div>
 
             <div class="company-name">' . htmlspecialchars($cert->company_name) . '</div>
             <div class="address">' . nl2br(htmlspecialchars($cert->address)) . '</div>

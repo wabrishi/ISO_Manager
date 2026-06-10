@@ -1,5 +1,5 @@
 <?php
-require_once 'header.php';
+session_start();
 require_once '../config/database.php';
 require_once '../models/Certificate.php';
 require_once '../models/Organization.php';
@@ -12,6 +12,10 @@ $org = new Organization($db);
 $action = $_GET['action'] ?? 'list';
 
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
+    if(!isset($_POST['csrf_token']) || $_POST['csrf_token'] !== $_SESSION['csrf_token']) {
+        die("CSRF Token Validation Failed.");
+    }
+
     if (isset($_POST['delete_certificate'])) {
         $cert->id = $_POST['id'];
         if ($cert->delete()) {
@@ -43,12 +47,16 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 $_SESSION['message'] = "Certificate created successfully. Please generate the PDF.";
                 header("Location: generate_certificate_file.php?id=" . $cert->id);
                 exit();
+            } else {
+                $_SESSION['error'] = "Failed to create certificate. Ensure all fields are valid and the database schema is updated.";
             }
         }
     }
     header("Location: certificates.php");
     exit();
 }
+
+require_once 'header.php';
 
 if ($action == 'edit' || $action == 'add') {
     if ($action == 'edit' && isset($_GET['id'])) {
@@ -64,6 +72,7 @@ if ($action == 'edit' || $action == 'add') {
         </div>
         <div class="card-body">
             <form method="POST" action="certificates.php">
+                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                 <?php if($action == 'edit'): ?>
                     <input type="hidden" name="id" value="<?= htmlspecialchars($cert->id) ?>">
                     <div class="mb-3">
@@ -169,6 +178,12 @@ if ($action == 'edit' || $action == 'add') {
             <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>
     <?php endif; ?>
+    <?php if(isset($_SESSION['error'])): ?>
+        <div class="alert alert-danger alert-dismissible fade show">
+            <?= $_SESSION['error']; unset($_SESSION['error']); ?>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+    <?php endif; ?>
 
     <div class="card">
         <div class="card-body">
@@ -222,6 +237,7 @@ if ($action == 'edit' || $action == 'add') {
                                         <li><hr class="dropdown-divider"></li>
                                         <li>
                                             <form method="POST" action="certificates.php" class="px-3 py-1">
+                                                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                                                 <input type="hidden" name="id" value="<?= $row['id'] ?>">
                                                 <input type="hidden" name="update_status" value="1">
                                                 <div class="input-group input-group-sm">
@@ -237,6 +253,7 @@ if ($action == 'edit' || $action == 'add') {
                                         <li><hr class="dropdown-divider"></li>
                                         <li>
                                             <form method="POST" action="certificates.php" class="px-3 py-1" onsubmit="return confirm('Are you sure you want to delete this certificate?');">
+                                                <input type="hidden" name="csrf_token" value="<?= $_SESSION['csrf_token'] ?>">
                                                 <input type="hidden" name="id" value="<?= $row['id'] ?>">
                                                 <input type="hidden" name="delete_certificate" value="1">
                                                 <button type="submit" class="btn btn-sm btn-outline-danger w-100"><i class="fas fa-trash"></i> Delete</button>
