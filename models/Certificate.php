@@ -57,9 +57,15 @@ class Certificate {
         $stmt->bindParam(":pdf_file", $pdf);
         $stmt->bindParam(":status", $this->status);
 
-        if($stmt->execute()) {
-            $this->id = $this->conn->lastInsertId();
-            return true;
+        try {
+            if($stmt->execute()) {
+                $this->id = $this->conn->lastInsertId();
+                return true;
+            }
+        } catch (PDOException $e) {
+            // Log the error so it's not silently swallowed
+            error_log("Certificate Creation Error: " . $e->getMessage());
+            return false;
         }
         return false;
     }
@@ -139,8 +145,13 @@ class Certificate {
         $stmt->bindParam(":status", $this->status);
         $stmt->bindParam(":id", $this->id);
 
-        if($stmt->execute()) {
-            return true;
+        try {
+            if($stmt->execute()) {
+                return true;
+            }
+        } catch (PDOException $e) {
+            error_log("Certificate Update Error: " . $e->getMessage());
+            return false;
         }
         return false;
     }

@@ -48,7 +48,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'POST') {
                 header("Location: generate_certificate_file.php?id=" . $cert->id);
                 exit();
             } else {
-                $_SESSION['error'] = "Failed to create certificate. Ensure all fields are valid and the database schema is updated.";
+                $_SESSION['error'] = "Failed to create certificate. Ensure all fields are valid, such as selecting a valid Organization.";
             }
         }
     }
